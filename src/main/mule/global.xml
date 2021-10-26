@@ -37,7 +37,7 @@ http://www.mulesoft.org/schema/mule/twilio http://www.mulesoft.org/schema/mule/t
 		<sns:basic-connection accessKey="${aws.access_key}" secretKey="${aws.secret_key}" region="US_EAST_2" testTopic="${aws.test_topic}"/>
 	</sns:config>
 	<twilio:config name="Twilio_Connector_Config" doc:name="Twilio Connector Config" doc:id="c7e9dc7b-1f97-4278-8a83-062b7f9f304a" >
-		<twilio:account-sid-auth-token-connection username="AC49e71af8253a008c3cbd1842852a546c" password="bfa70a94daf0bf40034d78bd88fa85d9" />
+		<twilio:account-sid-auth-token-connection username="${twilio.username}" password="${twilio.password}" />
 	</twilio:config>
 
 </mule>

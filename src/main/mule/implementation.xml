@@ -17,7 +17,6 @@ http://www.mulesoft.org/schema/mule/twilio http://www.mulesoft.org/schema/mule/t
 		<set-variable value='#[""]' doc:name="arn" doc:id="e4c5b0b7-17eb-44d1-8898-4a02aa147656" variableName="arn"/>
 		<set-variable value='#[""]' doc:name="arn_exists" doc:id="2c166508-b173-4798-8012-cfe91e5801f7" variableName="arn_exists"/>
 		<flow-ref doc:name="SNS_Flow" doc:id="098239f0-9fee-44bf-9f9e-d5897e953dfd" name="SNS_Flow"/>
-		<set-variable value="#[payload]" doc:name="mainPayload" doc:id="96aba639-ecad-4e3a-a449-8dd2332bf935" variableName="mainPayload"/>
 		<db:insert doc:name="Insert" doc:id="fe8105d6-ad95-4466-9d0b-9b4bb442cd6c" config-ref="Database_Config">
 			<db:sql ><![CDATA[INSERT INTO `stocks`(`symbol`, `mobileNumber`, `alertBy`, `pricePercentage`) VALUES (:value1,:value2,:value3,:value4)
 ]]></db:sql>
@@ -28,7 +27,7 @@ http://www.mulesoft.org/schema/mule/twilio http://www.mulesoft.org/schema/mule/t
 	value4: vars.pricePercentage as Number
 }]]]></db:input-parameters>
 		</db:insert>
-		<set-payload value='#[vars.mainPayload]' doc:name="Set Payload" doc:id="05b1a997-9b30-4a13-acaf-d8aa37be5bd8" />
+		<set-payload value='#[vars.publish]' doc:name="Set Payload" doc:id="05b1a997-9b30-4a13-acaf-d8aa37be5bd8" />
 		<logger level="INFO" doc:name="Logger" doc:id="6a44b182-af39-4c86-9b99-5800baa8499c" message='#[vars."output"]'/>
 		<error-handler >
 			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="8034eaea-36d3-45fc-a336-a5408ad15482" >
@@ -81,11 +80,9 @@ payload[0]]]></ee:set-payload>
 				</ee:transform>
 				<set-variable value="#[payload.arn_url]" doc:name="arn_exists" doc:id="287409da-09cf-4f6c-b2be-2ebe45d78d1a" variableName="arn_exists"/>
 				<flow-ref doc:name="publishSNSFlow" doc:id="5f5441ce-3e4b-4edb-bfec-98a00869fa86" name="publishSNSFlow" target="publish"/>
-				<set-payload value="#[payload]" doc:name="Set Payload" doc:id="e7f7eb43-9590-483c-8367-8e65d3ac9e34" />
 			</when>
 			<otherwise >
 				<flow-ref doc:name="createSNSTopicFlow" doc:id="df50439b-521c-4e6e-9fb0-914707ca8520" name="createSNSTopicFlow"/>
-				<set-payload value="#[payload]" doc:name="Set Payload" doc:id="ac71038e-d087-4344-a671-fd421f506add" />
 			</otherwise>
 		</choice>
 		<error-handler >
@@ -108,7 +105,6 @@ payload]]></ee:set-payload>
 		<set-variable value="#[payload]" doc:name="arn" doc:id="f1dd83ee-2139-4579-8e98-677787502754" variableName="arn"/>
 		<sns:subscribe doc:name="Subscribe" doc:id="d33d9547-1052-4279-be5c-93f54f44348e" config-ref="Amazon_SNS_configuration" topicArn="#[payload]" protocol="SQS" endpoint="${aws.queue_arn}"/>
 		<flow-ref doc:name="Flow Reference" doc:id="a4fecc0f-2611-494a-a2ac-8a383ac7cfa4" name="publishSNSFlow" target="rapid"/>
-		<set-payload value="#[payload]" doc:name="Set Payload" doc:id="d3949a58-2713-42a7-8541-81d7b4b5cf24" />
 		<error-handler >
 			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="54d31cd9-a121-4616-9c52-a173ac5bbecf" >
 				<set-payload value="#[error.errorMessage]" doc:name="errorMessage" doc:id="239f7678-9aae-4afa-a88c-6ca27a3f5eee" />
@@ -118,7 +114,6 @@ payload]]></ee:set-payload>
 	</flow>
 	<flow name="publishSNSFlow" doc:id="37b51052-7141-4578-9d2a-736bb5365069" >
 		<flow-ref doc:name="getDataFromRapidAPIFlow" doc:id="88703494-ddac-45f9-9c42-ce62e019c509" name="getDataFromRapidAPIFlow" target="rapid"/>
-		<set-variable value="#[payload]" doc:name="output" doc:id="3f97865e-730a-4768-90d8-1994675831d2" variableName="output"/>
 		<ee:transform doc:name="Convert to String" doc:id="98bffd5a-de11-4e27-bf5b-9ed1d1cb48ea" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
@@ -134,7 +129,7 @@ vars.rapid.^raw as String]]></ee:set-payload>
 payload]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<set-variable value="#[payload]" doc:name="data" doc:id="ce8925e7-99e8-4c93-8ff5-fcaf662fb26e" variableName="data"/>
+		<set-variable value="#[payload]" doc:name="data" doc:id="ce8925e7-99e8-4c93-8ff5-fcaf662fb26e" variableName="data" />
 		<ee:transform doc:name="arn_exists or arn" doc:id="576b67fd-75f8-49e5-8688-e68f7b901955" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
@@ -146,8 +141,7 @@ if(vars.arn_exists != "") vars.arn_exists else if (vars.arn != "") vars.arn else
 		<sns:publish doc:name="Publish" doc:id="8f0541a8-edbe-4bf0-9a64-52fbb419919d" config-ref="Amazon_SNS_configuration" topicArn='#[payload]'>
 			<sns:message ><![CDATA[#[vars.data]]]></sns:message>
 		</sns:publish>
-		<set-payload value="#[vars.data]" doc:name="Set Payload" doc:id="36a24a75-1ad7-46b5-9016-27693d01f400" />
-		<logger level="INFO" doc:name="Logger" doc:id="e61beb22-3552-46f0-ba81-16c719369026" />
+		<logger level="INFO" doc:name="Logger" doc:id="e61beb22-3552-46f0-ba81-16c719369026" message="#[vars.rapid]"/>
 		<error-handler >
 			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="e41f96ce-7df4-4583-971d-42145d7c5c36" type="ANY">
 				<set-payload value="#[error.errorMessage]" doc:name="errorMessage" doc:id="2f8be86c-2ad5-4b47-b614-810ab01f9502" />
@@ -217,7 +211,7 @@ output application/x-www-form-urlencoded
 }]]></ee:set-payload>
 						</ee:message>
 					</ee:transform>
-				<twilio:create20100401-accounts-messagesjson-by-account-sid doc:name="Send Alert to Text" doc:id="bf197988-2d72-4837-a2d3-94071dbcbed8" config-ref="Twilio_Connector_Config" accountSid="AC49e71af8253a008c3cbd1842852a546c" />
+				<twilio:create20100401-accounts-messagesjson-by-account-sid doc:name="Send Alert to Text" doc:id="bf197988-2d72-4837-a2d3-94071dbcbed8" config-ref="Twilio_Connector_Config" accountSid="${twilio.username}" />
 				<logger level="INFO" doc:name="Logger" doc:id="8c695e87-de57-4903-ad49-edd94fedc726" />
 			</when>
 			<otherwise >
@@ -234,7 +228,7 @@ output application/x-www-form-urlencoded
 }]]></ee:set-payload>
 					</ee:message>
 				</ee:transform>
-				<twilio:create20100401-accounts-messagesjson-by-account-sid doc:name="Send Alert to WhatsApp" doc:id="da390021-367c-4953-a779-f7c847d417fc" config-ref="Twilio_Connector_Config" accountSid="AC49e71af8253a008c3cbd1842852a546c"/>
+				<twilio:create20100401-accounts-messagesjson-by-account-sid doc:name="Send Alert to WhatsApp" doc:id="da390021-367c-4953-a779-f7c847d417fc" config-ref="Twilio_Connector_Config" accountSid="${twilio.username}"/>
 				<logger level="INFO" doc:name="Logger" doc:id="9eb06345-9793-4f18-be5d-a990018a8720" />
 			</otherwise>
 		</choice>
@@ -245,7 +239,7 @@ output application/x-www-form-urlencoded
 			</on-error-continue>
 		</error-handler>
 	</flow>
-	<flow name="schedularFlow" doc:id="4c609709-48f5-4a8b-973d-1f7ed1caee13" initialState="stopped">
+	<flow name="schedularFlow" doc:id="4c609709-48f5-4a8b-973d-1f7ed1caee13" initialState="started">
 		<scheduler doc:name="Scheduler" doc:id="aa52b897-fd76-417b-89a4-e020a0460db5">
 			<scheduling-strategy>
 				<fixed-frequency frequency="5" timeUnit="MINUTES" />
