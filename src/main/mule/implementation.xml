@@ -16,10 +16,10 @@ http://www.mulesoft.org/schema/mule/twilio http://www.mulesoft.org/schema/mule/t
 		<set-variable value="#[attributes.queryParams.pricePercentage]" doc:name="pricePercentage" doc:id="720e15d3-94f7-4904-9b73-59c485be78fd" variableName="pricePercentage"/>
 		<set-variable value='#[""]' doc:name="arn" doc:id="e4c5b0b7-17eb-44d1-8898-4a02aa147656" variableName="arn"/>
 		<set-variable value='#[""]' doc:name="arn_exists" doc:id="2c166508-b173-4798-8012-cfe91e5801f7" variableName="arn_exists"/>
-		<set-variable value='#[""]' doc:name="output" doc:id="e71fa13f-8ed2-4f22-8810-a632e3640d81" variableName="output" />
 		<flow-ref doc:name="SNS_Flow" doc:id="098239f0-9fee-44bf-9f9e-d5897e953dfd" name="SNS_Flow"/>
-		<db:insert doc:name="Insert" doc:id="c1b4b3c5-b3c4-4724-8174-df085156700a" config-ref="Database_Config">
-			<db:sql ><![CDATA[INSERT INTO `stocks`(`symbol`, `mobileNumber`, `alertBy`, `pricePercentage`) VALUES (:value1,:value2,:value3,:value4)]]></db:sql>
+		<db:insert doc:name="Insert" doc:id="fe8105d6-ad95-4466-9d0b-9b4bb442cd6c" config-ref="Database_Config">
+			<db:sql ><![CDATA[INSERT INTO `stocks`(`symbol`, `mobileNumber`, `alertBy`, `pricePercentage`) VALUES (:value1,:value2,:value3,:value4)
+]]></db:sql>
 			<db:input-parameters ><![CDATA[#[{
 	value1: vars.symbol,
 	value2: vars.mobileNumber,
@@ -27,7 +27,7 @@ http://www.mulesoft.org/schema/mule/twilio http://www.mulesoft.org/schema/mule/t
 	value4: vars.pricePercentage as Number
 }]]]></db:input-parameters>
 		</db:insert>
-		<set-payload value='#[vars."output"]' doc:name="Set Payload" doc:id="05b1a997-9b30-4a13-acaf-d8aa37be5bd8" />
+		<set-payload value='#[""]' doc:name="Set Payload" doc:id="05b1a997-9b30-4a13-acaf-d8aa37be5bd8" />
 		<logger level="INFO" doc:name="Logger" doc:id="6a44b182-af39-4c86-9b99-5800baa8499c" message='#[vars."output"]'/>
 	</flow>
 	<flow name="SNS_Flow" doc:id="6fdbe4a2-c411-488c-b5fb-d35014f713b6" >
