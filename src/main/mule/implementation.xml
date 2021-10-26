@@ -141,6 +141,7 @@ if(vars.arn_exists != "") vars.arn_exists else if (vars.arn != "") vars.arn else
 		<sns:publish doc:name="Publish" doc:id="8f0541a8-edbe-4bf0-9a64-52fbb419919d" config-ref="Amazon_SNS_configuration" topicArn='#[payload]'>
 			<sns:message ><![CDATA[#[vars.data]]]></sns:message>
 		</sns:publish>
+		<set-payload value="#[vars.rapid]" doc:name="Set Payload" doc:id="32281a98-6aeb-4a7f-a7af-fd7dbfde1256" />
 		<logger level="INFO" doc:name="Logger" doc:id="e61beb22-3552-46f0-ba81-16c719369026" message="#[vars.rapid]"/>
 		<error-handler >
 			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="e41f96ce-7df4-4583-971d-42145d7c5c36" type="ANY">
@@ -239,7 +240,7 @@ output application/x-www-form-urlencoded
 			</on-error-continue>
 		</error-handler>
 	</flow>
-	<flow name="schedularFlow" doc:id="4c609709-48f5-4a8b-973d-1f7ed1caee13" initialState="started">
+	<flow name="schedularFlow" doc:id="4c609709-48f5-4a8b-973d-1f7ed1caee13" initialState="stopped">
 		<scheduler doc:name="Scheduler" doc:id="aa52b897-fd76-417b-89a4-e020a0460db5">
 			<scheduling-strategy>
 				<fixed-frequency frequency="5" timeUnit="MINUTES" />
