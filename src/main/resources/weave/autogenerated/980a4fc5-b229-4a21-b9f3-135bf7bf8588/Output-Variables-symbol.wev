@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_980a4fc5_b229_4a21_b9f3_135bf7bf8588_Output_Variables_symbol = String | Null
+

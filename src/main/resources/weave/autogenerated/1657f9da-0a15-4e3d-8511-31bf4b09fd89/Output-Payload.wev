@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_1657f9da_0a15_4e3d_8511_31bf4b09fd89_Output_Payload = Array<Array<String>>
+

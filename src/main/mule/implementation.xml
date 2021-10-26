@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:twilio="http://www.mulesoft.org/schema/mule/twilio" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:sqs="http://www.mulesoft.org/schema/mule/sqs"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:sns="http://www.mulesoft.org/schema/mule/sns" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/sns http://www.mulesoft.org/schema/mule/sns/current/mule-sns.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/sqs http://www.mulesoft.org/schema/mule/sqs/current/mule-sqs.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/twilio http://www.mulesoft.org/schema/mule/twilio/current/mule-twilio.xsd">
+	<flow name="mainFlow" doc:id="abff8faf-816f-4146-b43d-6007229db1e8" >
+		<set-variable value="#[attributes.uriParams.stock]" doc:name="symbol" doc:id="7807e251-a39f-4d98-b89b-31e10d44da7f" variableName="symbol"/>
+		<set-variable value="#[attributes.queryParams.alertBy]" doc:name="alertBy" doc:id="16b504d8-62c4-484a-8970-23cd40b72cbf" variableName="alertBy"/>
+		<set-variable value="#[attributes.queryParams.mobileNumber]" doc:name="mobileNumber" doc:id="6958a148-f44f-42c9-9718-59933582b3cc" variableName="mobileNumber"/>
+		<set-variable value="#[attributes.queryParams.pricePercentage]" doc:name="pricePercentage" doc:id="720e15d3-94f7-4904-9b73-59c485be78fd" variableName="pricePercentage"/>
+		<set-variable value='#[""]' doc:name="arn" doc:id="e4c5b0b7-17eb-44d1-8898-4a02aa147656" variableName="arn"/>
+		<set-variable value='#[""]' doc:name="arn_exists" doc:id="2c166508-b173-4798-8012-cfe91e5801f7" variableName="arn_exists"/>
+		<set-variable value='#[""]' doc:name="output" doc:id="e71fa13f-8ed2-4f22-8810-a632e3640d81" variableName="output" />
+		<flow-ref doc:name="SNS_Flow" doc:id="098239f0-9fee-44bf-9f9e-d5897e953dfd" name="SNS_Flow"/>
+		<db:insert doc:name="Insert" doc:id="c1b4b3c5-b3c4-4724-8174-df085156700a" config-ref="Database_Config">
+			<db:sql ><![CDATA[INSERT INTO `stocks`(`symbol`, `mobileNumber`, `alertBy`, `pricePercentage`) VALUES (:value1,:value2,:value3,:value4)]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	value1: vars.symbol,
+	value2: vars.mobileNumber,
+	value3: vars.alertBy,
+	value4: vars.pricePercentage as Number
+}]]]></db:input-parameters>
+		</db:insert>
+		<set-payload value='#[vars."output"]' doc:name="Set Payload" doc:id="05b1a997-9b30-4a13-acaf-d8aa37be5bd8" />
+		<logger level="INFO" doc:name="Logger" doc:id="6a44b182-af39-4c86-9b99-5800baa8499c" message='#[vars."output"]'/>
+	</flow>
+	<flow name="SNS_Flow" doc:id="6fdbe4a2-c411-488c-b5fb-d35014f713b6" >
+		<sns:list-topics doc:name="List topics" doc:id="8e227263-6fbd-411a-b8f3-ae4ba430021a" config-ref="Amazon_SNS_configuration"/>
+		<ee:transform doc:name="Transform Message" doc:id="b94dad2d-10d5-4ef8-b5ae-5a15d3ee28ed" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+(payload map {
+    arn : $.payload as String splitBy(":") [-1],
+    arn_url: $.payload as String
+})]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="1a451ef9-3d58-4576-8f3f-401d6f07a30d" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+(payload map {
+	arn: $.arn[-1],
+    arn_url: $.arn_url
+})]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<choice doc:name="Choice" doc:id="d43b6aae-80fa-44e8-b886-d246d9226f80" >
+			<when expression="#[payload.arn contains vars.symbol]">
+				<ee:transform doc:name="Transform Message" doc:id="7ae5077b-f943-4810-b59e-c4f3bdc5947e" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload filter ((item, index) -> item.arn == vars.symbol)]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<ee:transform doc:name="Transform Message" doc:id="1e105c47-36ae-4a29-92a0-d5d647279456" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload[0]]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<set-variable value="#[payload.arn_url]" doc:name="arn_exists" doc:id="287409da-09cf-4f6c-b2be-2ebe45d78d1a" variableName="arn_exists"/>
+				<flow-ref doc:name="publishSNSFlow" doc:id="5f5441ce-3e4b-4edb-bfec-98a00869fa86" name="publishSNSFlow" target="publish"/>
+			</when>
+			<otherwise >
+				<flow-ref doc:name="createSNSTopicFlow" doc:id="df50439b-521c-4e6e-9fb0-914707ca8520" name="createSNSTopicFlow"/>
+			</otherwise>
+		</choice>
+	</flow>
+	<flow name="createSNSTopicFlow" doc:id="1657f9da-0a15-4e3d-8511-31bf4b09fd89" >
+		<sns:create-topic doc:name="Create topic" doc:id="d5de6067-bc7c-4452-b8be-3ec743567dfe" config-ref="Amazon_SNS_configuration" topicName="#[vars.symbol]"/>
+		<ee:transform doc:name="Transform Message" doc:id="f098f85f-8ca4-4ff0-ae19-16dbab5844c6" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<set-variable value="#[payload]" doc:name="arn" doc:id="f1dd83ee-2139-4579-8e98-677787502754" variableName="arn"/>
+		<sns:subscribe doc:name="Subscribe" doc:id="d33d9547-1052-4279-be5c-93f54f44348e" config-ref="Amazon_SNS_configuration" topicArn="#[payload]" protocol="SQS" endpoint="${aws.queue_arn}"/>
+		<flow-ref doc:name="Flow Reference" doc:id="a4fecc0f-2611-494a-a2ac-8a383ac7cfa4" name="publishSNSFlow" target="rapid"/>
+	</flow>
+	<flow name="publishSNSFlow" doc:id="37b51052-7141-4578-9d2a-736bb5365069" >
+		<flow-ref doc:name="getDataFromRapidAPIFlow" doc:id="88703494-ddac-45f9-9c42-ce62e019c509" name="getDataFromRapidAPIFlow" target="rapid"/>
+		<set-variable value="#[payload]" doc:name="output" doc:id="3f97865e-730a-4768-90d8-1994675831d2" variableName="output"/>
+		<ee:transform doc:name="Convert to String" doc:id="98bffd5a-de11-4e27-bf5b-9ed1d1cb48ea" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output text/json
+---
+vars.rapid.^raw as String]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Convert to Plain Text" doc:id="d8bbf647-8338-4799-9815-6db5da24a335" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[output text/plain
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<set-variable value="#[payload]" doc:name="data" doc:id="ce8925e7-99e8-4c93-8ff5-fcaf662fb26e" variableName="data"/>
+		<ee:transform doc:name="arn_exists or arn" doc:id="576b67fd-75f8-49e5-8688-e68f7b901955" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+if(vars.arn_exists != "") vars.arn_exists else if (vars.arn != "") vars.arn else ""]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<sns:publish doc:name="Publish" doc:id="8f0541a8-edbe-4bf0-9a64-52fbb419919d" config-ref="Amazon_SNS_configuration" topicArn='#[payload]'>
+			<sns:message ><![CDATA[#[vars.data]]]></sns:message>
+		</sns:publish>
+		<set-payload value="#[vars.dataFromRapidAPI]" doc:name="Set Payload" doc:id="36a24a75-1ad7-46b5-9016-27693d01f400" />
+		<logger level="INFO" doc:name="Logger" doc:id="e61beb22-3552-46f0-ba81-16c719369026" />
+	</flow>
+	<flow name="getDataFromRapidAPIFlow" doc:id="980a4fc5-b229-4a21-b9f3-135bf7bf8588" >
+		<http:request method="GET" doc:name="Request" doc:id="b79aa3e4-6767-49ba-8e28-2512281fe781" config-ref="HTTP_Request_configuration" path="/query">
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"symbol" : vars.symbol,
+	"function" : "GLOBAL_QUOTE"
+}]]]></http:query-params>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="36a76eb1-4e4c-4d6b-afdd-72953ef2d174" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"alertBy": vars.alertBy,
+	"mobileNumber": vars.mobileNumber,
+	"symbol": payload."Global Quote"."01. symbol",
+	"open": payload."Global Quote"."02. open",
+	"high": payload."Global Quote"."03. high",
+	"low": payload."Global Quote"."04. low",
+	"price": payload."Global Quote"."05. price",
+	"volume": payload."Global Quote"."06. volume",
+	"changePercent": payload."Global Quote"."10. change percent",
+	"note": "You will get More Notifications when Change Percent exceeds"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="ba16f66d-1c15-4910-85f5-1be167b1bc6e" />
+	</flow>
+	<flow name="alertFlow" doc:id="9b9a05d4-7763-488c-b302-51d2f01612d5" >
+		<sqs:receivemessages doc:name="Receive messages" doc:id="faf1f9f2-a5eb-4bfd-b05d-622416e07b9b" config-ref="Amazon_SQS_Configuration" queueUrl="https://sqs.us-east-2.amazonaws.com/417908622723/Stocks"/>
+		<ee:transform doc:name="Transform Message" doc:id="fe6174da-3700-4ad3-9660-85c9007abce7" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+read(read(payload,"application/json").Message) ]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="d3954826-9bec-4a60-8faa-051a1eb1aebd" message='#["Receive Message Flow " ++ payload.^raw as String]'/>
+		<set-variable value="#[payload]" doc:name="result" doc:id="6f95d359-057c-4390-a91b-e1c6501e3cfa" variableName="result"/>
+		<choice doc:name="Choice" doc:id="5eb2b1cb-423a-4f3a-a239-cb6aaaf3376d" >
+			<when expression='#[vars.result.alertBy contains "Text"]'>
+				<ee:transform doc:name="Transform Message" doc:id="bd66c952-3197-4e22-a729-bc376f8c6d75">
+						<ee:message>
+							<ee:set-payload><![CDATA[%dw 2.0
+output application/x-www-form-urlencoded
+---
+{
+	"To": "+91" ++ payload.mobileNumber as String,
+	"MessagingServiceSid" : "MG4619ab5bc013fc32828757b386eed00d",
+	 Body: payload.^raw as String
+}]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+				<twilio:create20100401-accounts-messagesjson-by-account-sid doc:name="Send Alert to Text" doc:id="bf197988-2d72-4837-a2d3-94071dbcbed8" config-ref="Twilio_Connector_Config" accountSid="AC49e71af8253a008c3cbd1842852a546c" />
+				<logger level="INFO" doc:name="Logger" doc:id="8c695e87-de57-4903-ad49-edd94fedc726" />
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Transform Message" doc:id="b079c284-1a96-4310-96fb-5d7bb60bb10a">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/x-www-form-urlencoded
+---
+{
+	"To": "whatsapp:+91" ++ payload.mobileNumber as String,
+	"From": "whatsapp:+14155238886",
+	"MessagingServiceSid" : "MG4619ab5bc013fc32828757b386eed00d",
+	 Body: payload.^raw as String
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<twilio:create20100401-accounts-messagesjson-by-account-sid doc:name="Send Alert to WhatsApp" doc:id="da390021-367c-4953-a779-f7c847d417fc" config-ref="Twilio_Connector_Config" accountSid="AC49e71af8253a008c3cbd1842852a546c"/>
+				<logger level="INFO" doc:name="Logger" doc:id="9eb06345-9793-4f18-be5d-a990018a8720" />
+			</otherwise>
+		</choice>
+	</flow>
+	<flow name="schedularFlow" doc:id="4c609709-48f5-4a8b-973d-1f7ed1caee13" initialState="started">
+		<scheduler doc:name="Scheduler" doc:id="aa52b897-fd76-417b-89a4-e020a0460db5">
+			<scheduling-strategy>
+				<fixed-frequency frequency="5" timeUnit="MINUTES" />
+			</scheduling-strategy>
+		</scheduler>
+		<db:select doc:name="Select" doc:id="ab6bcd07-5692-444d-a179-3a5f7c917693" config-ref="Database_Config">
+			<db:sql><![CDATA[SELECT * FROM `stocks`]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="c837cae4-390d-4503-96dc-b1f5ff42586a">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<set-variable value="#[payload]" doc:name="dataFromDB" doc:id="7e3d4b6b-2a03-4d6b-914d-25f1af871613" variableName="dataFromDB" />
+		<foreach doc:name="For Each" doc:id="2b1d1fda-e2d0-4c7b-89de-358f3e23676e" collection="#[vars.dataFromDB]">
+			<set-variable value="#[payload]" doc:name="data" doc:id="c539918e-8b3f-4f26-83a3-b8e7cb8314b7" variableName="data" />
+			<http:request method="GET" doc:name="Request" doc:id="93df6b99-26d7-4c62-8786-199f904f7db8" config-ref="HTTP_Request_configuration" path="/query">
+				<http:query-params><![CDATA[#[output application/java
+---
+{
+	"symbol" : payload.symbol,
+	"function" : "GLOBAL_QUOTE"
+}]]]></http:query-params>
+			</http:request>
+			<set-variable value="#[vars.data.symbol as String]" doc:name="symbolFromDB" doc:id="d5ffecf0-bffe-4861-b83d-428249f8b21f" variableName="symbolFromDB" />
+			<set-variable value='#[(payload."Global Quote"."10. change percent" replace "%" with ("")) as Number]' doc:name="changePercentFromAPI" doc:id="37b983bc-9563-4b24-bdcf-08713997175c" variableName="changePercentFromAPI" />
+			<set-variable doc:name="changePercentFromDB" doc:id="37ddef8e-4fab-4296-81d5-56d19fb5deb0" variableName="changePercentFromDB" value="#[vars.data.pricePercentage as Number]" />
+			<ee:transform doc:name="ChangeAPIResponse" doc:id="cd152023-68d4-4278-bac2-9a3f1f6c30b4">
+				<ee:message>
+					<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"alertBy": vars.data.alertBy,
+	"mobileNumber": vars.data.mobileNumber,
+	"symbol": payload."Global Quote"."01. symbol",
+	"open": payload."Global Quote"."02. open",
+	"high": payload."Global Quote"."03. high",
+	"low": payload."Global Quote"."04. low",
+	"price": payload."Global Quote"."05. price",
+	"volume": payload."Global Quote"."06. volume",
+	"changePercent": payload."Global Quote"."10. change percent"
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<choice doc:name="Choice" doc:id="555300af-cbb7-40fe-a65b-e733bdeb9715">
+				<when expression="#[vars.changePercentFromAPI &gt; vars.changePercentFromDB]">
+					<ee:transform doc:name="Transform Message" doc:id="034247dc-60a3-4e65-b5d6-e62e602bcae4">
+				<ee:message>
+					<ee:set-payload><![CDATA[%dw 2.0
+output text/json
+---
+payload.^raw as String]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+					<ee:transform doc:name="Transform Message" doc:id="e8df532f-1bd1-434c-b4f2-fdb671efbced">
+				<ee:message>
+					<ee:set-payload><![CDATA[%dw 2.0
+output text/plain
+---
+payload]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+					<set-variable value='#["arn:aws:sns:us-east-2:417908622723:" ++ vars.symbolFromDB]' doc:name="destination_arn" doc:id="5f64bc52-3d54-4816-9817-d2651126bd99" variableName="destination_arn" />
+					<sns:publish doc:name="Publish" doc:id="ada28104-de50-4f55-a248-2535044ba29a" config-ref="Amazon_SNS_configuration" topicArn="#[vars.destination_arn]" />
+					<db:delete doc:name="Delete" doc:id="952a2dbe-3cd2-4c34-823a-5f46360e02a2" config-ref="Database_Config">
+						<db:sql><![CDATA[DELETE FROM `stocks` WHERE `stocks`.`id` = :id]]></db:sql>
+						<db:input-parameters><![CDATA[#[{
+	id: vars.data.id
+}]]]></db:input-parameters>
+					</db:delete>
+				</when>
+				<otherwise>
+					<logger level="INFO" doc:name="Logger" doc:id="cdb53ead-2432-4d3e-b816-daaca2f33050" message="Symbol Hasn't Exceeded By Required Percentage" />
+				</otherwise>
+			</choice>
+		</foreach>
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="97c583bc-35d8-4c37-9a44-adbde32b4903" type="ANY">
+				<logger level="INFO" doc:name="Logger" doc:id="5e1709a4-a5cd-4893-b333-f38c6126433a" message='#[error.errorMessage]'/>
+			</on-error-continue>
+		</error-handler>
+	
+</flow>
+
+</mule>

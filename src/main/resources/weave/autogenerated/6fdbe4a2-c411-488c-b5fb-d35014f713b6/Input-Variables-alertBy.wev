@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_6fdbe4a2_c411_488c_b5fb_d35014f713b6_Input_Variables_alertBy = String | Null
+

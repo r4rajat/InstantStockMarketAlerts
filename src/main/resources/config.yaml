@@ -1,0 +1,19 @@
+db:
+  host: "inventory-related-data.coqgdiwy3dba.ap-south-1.rds.amazonaws.com"
+  port: "3306"
+  user: "root"
+  password: "Viper007_"
+  database: "stocks"
+
+aws:
+  account_id: "417908622723"
+  access_key: "AKIAWCTKLQWB6I5ZZ4MA"
+  secret_key: "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"
+  test_topic: "arn:aws:sns:us-east-2:417908622723:testTopic"
+  general_arn: "arn:aws:sns:us-east-2:417908622723:"
+  queue_arn: "arn:aws:sqs:us-east-2:417908622723:Stocks"
+  queue_url: "https://sqs.us-east-2.amazonaws.com/417908622723/Stocks"
+
+twilio:
+  username: "AC49e71af8253a008c3cbd1842852a546c"
+  password: "bfa70a94daf0bf40034d78bd88fa85d9"

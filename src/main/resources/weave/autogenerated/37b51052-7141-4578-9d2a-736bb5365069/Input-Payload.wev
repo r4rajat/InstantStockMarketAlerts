@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_37b51052_7141_4578_9d2a_736bb5365069_Input_Payload = Array<Array<String>>
+

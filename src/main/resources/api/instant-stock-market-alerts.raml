@@ -1,0 +1,28 @@
+#%RAML 1.0
+title: Instant Stock Market Alerts
+
+/getStockDetails:
+  /{stock}:
+    get:
+      queryParameters:
+        alertBy:
+          type: string
+          enum:
+            - Text
+            - WhatsApp
+        mobileNumber:
+          type: string
+          maxLength: 10
+        pricePercentage:
+          type: number
+      responses:
+        200:
+          body:
+            application/json:
+              example: !include examples/responseExample.raml
+          
+          
+            
+
+        
+    

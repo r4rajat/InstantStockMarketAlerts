@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:twilio="http://www.mulesoft.org/schema/mule/twilio"
+	xmlns:sns="http://www.mulesoft.org/schema/mule/sns"
+	xmlns:sqs="http://www.mulesoft.org/schema/mule/sqs" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/sqs http://www.mulesoft.org/schema/mule/sqs/current/mule-sqs.xsd
+http://www.mulesoft.org/schema/mule/sns http://www.mulesoft.org/schema/mule/sns/current/mule-sns.xsd
+http://www.mulesoft.org/schema/mule/twilio http://www.mulesoft.org/schema/mule/twilio/current/mule-twilio.xsd">
+	<http:listener-config name="instant-stock-market-alerts-httpListenerConfig">
+        <http:listener-connection host="0.0.0.0" port="8081" />
+    </http:listener-config>
+    <apikit:config name="instant-stock-market-alerts-config" api="instant-stock-market-alerts.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="2967a124-0e10-4f85-b9d1-37019b124a2a" >
+		<http:request-connection protocol="HTTPS" host="alpha-vantage.p.rapidapi.com" >
+			<reconnection >
+				<reconnect count="3" />
+			</reconnection>
+		</http:request-connection>
+		<http:default-headers >
+			<http:default-header key="x-rapidapi-host" value="alpha-vantage.p.rapidapi.com" />
+			<http:default-header key="x-rapidapi-key" value="42230a2357msha225c3cf552b4cep1da9a1jsn536b18d2bf9d" />
+		</http:default-headers>
+	</http:request-config>
+	<configuration-properties doc:name="Configuration properties" doc:id="b424e2ac-ee90-4921-832e-73382de7b63c" file="config.yaml" />
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="998b9a4a-67e4-4878-b987-8e7f53e6b907" >
+		<db:my-sql-connection host="${db.host}" port="${db.port}" user="${db.user}" password="${db.password}" database="${db.database}" />
+	</db:config>
+	<sqs:config name="Amazon_SQS_Configuration" doc:name="Amazon SQS Configuration" doc:id="29448da9-3e06-47dd-aaaa-dff8071a694a" >
+		<sqs:basic-connection accessKey="${aws.access_key}" secretKey="${aws.secret_key}" region="us-east-2" />
+	</sqs:config>
+	<sns:config name="Amazon_SNS_configuration" doc:name="Amazon SNS configuration" doc:id="3a6d7730-d1ea-492d-b8ab-8baff549f8ca" >
+		<sns:basic-connection accessKey="${aws.access_key}" secretKey="${aws.secret_key}" region="US_EAST_2" testTopic="${aws.test_topic}"/>
+	</sns:config>
+	<twilio:config name="Twilio_Connector_Config" doc:name="Twilio Connector Config" doc:id="c7e9dc7b-1f97-4278-8a83-062b7f9f304a" >
+		<twilio:account-sid-auth-token-connection username="AC49e71af8253a008c3cbd1842852a546c" password="bfa70a94daf0bf40034d78bd88fa85d9" />
+	</twilio:config>
+
+</mule>
