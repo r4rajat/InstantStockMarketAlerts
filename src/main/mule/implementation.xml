@@ -240,7 +240,7 @@ output application/x-www-form-urlencoded
 			</on-error-continue>
 		</error-handler>
 	</flow>
-	<flow name="schedularFlow" doc:id="4c609709-48f5-4a8b-973d-1f7ed1caee13" initialState="stopped">
+	<flow name="schedularFlow" doc:id="4c609709-48f5-4a8b-973d-1f7ed1caee13" initialState="started">
 		<scheduler doc:name="Scheduler" doc:id="aa52b897-fd76-417b-89a4-e020a0460db5">
 			<scheduling-strategy>
 				<fixed-frequency frequency="5" timeUnit="MINUTES" />
