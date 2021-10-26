@@ -1,0 +1,808 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="Munit.xml" />
+	<munit:test name="SchedulingAlert" doc:id="6c0ca9ae-3add-43b9-831b-92dc73a09a44" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock Request" doc:id="d1e0001e-bfbc-4a3c-890f-5260c1720b8d" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="93df6b99-26d7-4c62-8786-199f904f7db8" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://SchedulingAlert\mock_payload.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://SchedulingAlert\mock_attributes.dwl')]" />
+					<munit-tools:variables >
+						<munit-tools:variable key="dataFromDB" value="#[output application/json --- readUrl('classpath://SchedulingAlert\mock_variable_.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="rootMessage" value="#[readUrl('classpath://SchedulingAlert\mock_variable_1.dwl')]" />
+						<munit-tools:variable key="data" value="#[output application/json --- readUrl('classpath://SchedulingAlert\mock_variable_2.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="counter" value="#[readUrl('classpath://SchedulingAlert\mock_variable_3.dwl')]" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock Select" doc:id="1e7ecff3-44d3-4ddb-9782-67a439f628ae" processor="db:select">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="ab6bcd07-5692-444d-a179-3a5f7c917693" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/java --- readUrl('classpath://SchedulingAlert\mock_payload1.dwl')]" mediaType="application/java" encoding="UTF-8" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="6b285d77-ea5a-496b-a2d4-98ddca997d0d" >
+				<munit:payload value="#[readUrl('classpath://SchedulingAlert\set-event_payload.dwl')]" />
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to schedularFlow" doc:id="3f20d123-5d63-4996-8adf-5a61b6ee9021" name="schedularFlow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="530a8aef-44dd-4628-911a-10058b7cc459" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import SchedulingAlert::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="PublishAlerts" doc:id="74de83ea-66d7-46bc-aeab-ebfd00ad6abe" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock Delete" doc:id="3c2091ca-5822-4838-90c4-2efa9ae7adbd" processor="db:delete">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="952a2dbe-3cd2-4c34-823a-5f46360e02a2" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/java --- readUrl('classpath://PublishAlerts\mock_payload.dwl')]" mediaType="application/java" encoding="UTF-8" />
+					<munit-tools:variables >
+						<munit-tools:variable key="dataFromDB" value="#[output application/json --- readUrl('classpath://PublishAlerts\mock_variable_.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="symbolFromDB" value="#[output application/json --- readUrl('classpath://PublishAlerts\mock_variable_1.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="rootMessage" value="#[readUrl('classpath://PublishAlerts\mock_variable_2.dwl')]" />
+						<munit-tools:variable key="data" value="#[output application/json --- readUrl('classpath://PublishAlerts\mock_variable_3.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="counter" value="#[readUrl('classpath://PublishAlerts\mock_variable_4.dwl')]" />
+						<munit-tools:variable key="destination_arn" value="#[output application/json --- readUrl('classpath://PublishAlerts\mock_variable_5.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="changePercentFromDB" value="#[output application/json --- readUrl('classpath://PublishAlerts\mock_variable_6.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="changePercentFromAPI" value="#[output application/json --- readUrl('classpath://PublishAlerts\mock_variable_7.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock Request" doc:id="5a4ce540-dc12-4c04-9c87-284eb3395af7" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="93df6b99-26d7-4c62-8786-199f904f7db8" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://PublishAlerts\mock_payload1.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://PublishAlerts\mock_attributes.dwl')]" />
+					<munit-tools:variables >
+						<munit-tools:variable key="dataFromDB" value="#[output application/json --- readUrl('classpath://PublishAlerts\mock_variable_8.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="rootMessage" value="#[readUrl('classpath://PublishAlerts\mock_variable_9.dwl')]" />
+						<munit-tools:variable key="data" value="#[output application/json --- readUrl('classpath://PublishAlerts\mock_variable_10.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="counter" value="#[readUrl('classpath://PublishAlerts\mock_variable_11.dwl')]" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock Publish" doc:id="f17ab595-bc07-4ed2-a311-2f32c31f380f" processor="sns:publish">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="ada28104-de50-4f55-a248-2535044ba29a" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output text/plain --- readUrl('classpath://PublishAlerts\mock_payload2.dwl')]" mediaType="text/plain" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://PublishAlerts\mock_attributes1.dwl')]" />
+					<munit-tools:variables >
+						<munit-tools:variable key="dataFromDB" value="#[output application/json --- readUrl('classpath://PublishAlerts\mock_variable_12.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="symbolFromDB" value="#[output application/json --- readUrl('classpath://PublishAlerts\mock_variable_13.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="rootMessage" value="#[readUrl('classpath://PublishAlerts\mock_variable_14.dwl')]" />
+						<munit-tools:variable key="data" value="#[output application/json --- readUrl('classpath://PublishAlerts\mock_variable_15.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="counter" value="#[readUrl('classpath://PublishAlerts\mock_variable_16.dwl')]" />
+						<munit-tools:variable key="destination_arn" value="#[output application/json --- readUrl('classpath://PublishAlerts\mock_variable_17.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="changePercentFromDB" value="#[output application/json --- readUrl('classpath://PublishAlerts\mock_variable_18.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="changePercentFromAPI" value="#[output application/json --- readUrl('classpath://PublishAlerts\mock_variable_19.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock dataFromDB" doc:id="3b00b66b-1d01-4c68-8f61-331f59e0df11" processor="set-variable">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="7e3d4b6b-2a03-4d6b-914d-25f1af871613" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:variables >
+						<munit-tools:variable key="dataFromDB" value="#[output application/json --- readUrl('classpath://PublishAlerts\mock_variable_20.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock Select" doc:id="d1844fc7-d8d1-4127-926c-89ec5150753d" processor="db:select">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="ab6bcd07-5692-444d-a179-3a5f7c917693" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/java --- readUrl('classpath://PublishAlerts\mock_payload3.dwl')]" mediaType="application/java" encoding="UTF-8" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="06f6ced7-7849-4d88-971b-b8d22c5612da" >
+				<munit:payload value="#[readUrl('classpath://PublishAlerts\set-event_payload.dwl')]" />
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to schedularFlow" doc:id="5c2a4d9e-5f03-4306-9138-d50c93e7013d" name="schedularFlow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="45f395cf-02ef-48fc-9459-b40b43a645ed" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import PublishAlerts::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="AlertsTextViaSMS" doc:id="de729850-f203-41a4-94a3-889ffad5f942" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock result" doc:id="8c8cfae4-d317-4d3a-b9f6-925f1884eb36" processor="set-variable">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="6f95d359-057c-4390-a91b-e1c6501e3cfa" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:variables >
+						<munit-tools:variable key="result" value="#[output application/json --- readUrl('classpath://AlertsTextViaSMS\mock_variable_.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock Send Alert to Text" doc:id="b81afa9f-31c3-43ae-9a67-346a1d4e49e2" processor="twilio:create20100401-accounts-messagesjson-by-account-sid">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="bf197988-2d72-4837-a2d3-94071dbcbed8" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://AlertsTextViaSMS\mock_payload.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:attributes value="#[output application/java --- readUrl('classpath://AlertsTextViaSMS\mock_attributes.dwl')]" mediaType="application/java" />
+					<munit-tools:variables >
+						<munit-tools:variable key="result" value="#[output application/json --- readUrl('classpath://AlertsTextViaSMS\mock_variable_1.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="891203d2-8a2d-4ddd-96bb-950945e8b817" >
+				<munit:payload value="#[output text/plain --- readUrl('classpath://AlertsTextViaSMS\set-event_payload.dwl')]" encoding="UTF-8" mediaType="text/plain" />
+				<munit:attributes value="#[readUrl('classpath://AlertsTextViaSMS\set-event_attributes.dwl')]" />
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to alertFlow" doc:id="1d060bcd-ff57-4fec-a27f-1cf0aee15af9" name="alertFlow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="29d4116d-0711-47fa-ba4d-0f5ac177754e" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import AlertsTextViaSMS::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="AlertsViaWhatsapp" doc:id="7e8a3556-63b6-41c3-ba0c-79fe434798b3" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock result" doc:id="15a16b1b-357d-4568-9fcb-d17b79d65841" processor="set-variable">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="6f95d359-057c-4390-a91b-e1c6501e3cfa" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:variables >
+						<munit-tools:variable key="result" value="#[output application/json --- readUrl('classpath://AlertsViaWhatsapp\mock_variable_.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock Send Alert to WhatsApp" doc:id="3762fd3e-6284-44a9-9574-870cdafcea14" processor="twilio:create20100401-accounts-messagesjson-by-account-sid">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="da390021-367c-4953-a779-f7c847d417fc" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://AlertsViaWhatsapp\mock_payload.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:attributes value="#[output application/java --- readUrl('classpath://AlertsViaWhatsapp\mock_attributes.dwl')]" mediaType="application/java" />
+					<munit-tools:variables >
+						<munit-tools:variable key="result" value="#[output application/json --- readUrl('classpath://AlertsViaWhatsapp\mock_variable_1.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="91c03281-a67f-4f9e-b51d-b0c09bc78b00" >
+				<munit:payload value="#[output text/plain --- readUrl('classpath://AlertsViaWhatsapp\set-event_payload.dwl')]" encoding="UTF-8" mediaType="text/plain" />
+				<munit:attributes value="#[readUrl('classpath://AlertsViaWhatsapp\set-event_attributes.dwl')]" />
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to alertFlow" doc:id="bc5e3aa4-28a1-4131-8be5-432b80af02e0" name="alertFlow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="fb54d6f2-daa2-4e99-bc89-92fe567bdc02" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import AlertsViaWhatsapp::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="getDataFromRapidAPIFlow1" doc:id="6d5879ba-2c91-47bb-855b-7f43c0427490" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock Request" doc:id="8713bb19-24bd-4837-ac4e-7ef2d62c4d91" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="b79aa3e4-6767-49ba-8e28-2512281fe781" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://getDataFromRapidAPIFlow1\mock_payload.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://getDataFromRapidAPIFlow1\mock_attributes.dwl')]" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://getDataFromRapidAPIFlow1\mock_variable_.dwl')]" />
+						<munit-tools:variable key="mobileNumber" value="#[output application/java --- readUrl('classpath://getDataFromRapidAPIFlow1\mock_variable_1.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="arn_exists" value="#[output application/java --- readUrl('classpath://getDataFromRapidAPIFlow1\mock_variable_2.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="arn" value="#[output application/json --- readUrl('classpath://getDataFromRapidAPIFlow1\mock_variable_3.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="symbol" value="#[output application/java --- readUrl('classpath://getDataFromRapidAPIFlow1\mock_variable_4.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="alertBy" value="#[output application/java --- readUrl('classpath://getDataFromRapidAPIFlow1\mock_variable_5.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="pricePercentage" value="#[output application/java --- readUrl('classpath://getDataFromRapidAPIFlow1\mock_variable_6.dwl')]" mediaType="application/java" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="b1aafc1d-0d81-433c-ab0d-81855768b5f2" >
+				<munit:payload value="#[output text/plain --- readUrl('classpath://getDataFromRapidAPIFlow1\set-event_payload.dwl')]" encoding="UTF-8" mediaType="text/plain" />
+				<munit:attributes value="#[readUrl('classpath://getDataFromRapidAPIFlow1\set-event_attributes.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://getDataFromRapidAPIFlow1\set-event_variable_.dwl')]" />
+					<munit:variable key="mobileNumber" value="#[output application/java --- readUrl('classpath://getDataFromRapidAPIFlow1\set-event_variable_1.dwl')]" encoding="UTF-8" mediaType="application/java" />
+					<munit:variable key="arn_exists" value="#[output application/java --- readUrl('classpath://getDataFromRapidAPIFlow1\set-event_variable_2.dwl')]" encoding="UTF-8" mediaType="application/java" />
+					<munit:variable key="arn" value="#[output application/json --- readUrl('classpath://getDataFromRapidAPIFlow1\set-event_variable_3.dwl')]" encoding="UTF-8" mediaType="application/json" />
+					<munit:variable key="symbol" value="#[output application/java --- readUrl('classpath://getDataFromRapidAPIFlow1\set-event_variable_4.dwl')]" encoding="UTF-8" mediaType="application/java" />
+					<munit:variable key="alertBy" value="#[output application/java --- readUrl('classpath://getDataFromRapidAPIFlow1\set-event_variable_5.dwl')]" encoding="UTF-8" mediaType="application/java" />
+					<munit:variable key="pricePercentage" value="#[output application/java --- readUrl('classpath://getDataFromRapidAPIFlow1\set-event_variable_6.dwl')]" encoding="UTF-8" mediaType="application/java" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to getDataFromRapidAPIFlow" doc:id="64541e3f-9c09-45d1-8205-24c3aac0650e" name="getDataFromRapidAPIFlow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="2157a1fb-da5f-4c2f-a440-6e9ec3a4244d" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import getDataFromRapidAPIFlow1::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="publishSNSFlow1" doc:id="2fa49fea-800d-4fda-9fdf-d5d4797e06b0" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock Set Payload" doc:id="142fc3af-3154-46b4-b2af-ff03be3af8a5" processor="set-payload">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="32281a98-6aeb-4a7f-a7af-fd7dbfde1256" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://publishSNSFlow1\mock_payload.dwl')]" mediaType="application/json" encoding="UTF-8" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock data" doc:id="f89a922c-9ca4-4579-a732-ed66272b5e9d" processor="set-variable">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="ce8925e7-99e8-4c93-8ff5-fcaf662fb26e" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://publishSNSFlow1\mock_variable_.dwl')]" />
+						<munit-tools:variable key="mobileNumber" value="#[output application/java --- readUrl('classpath://publishSNSFlow1\mock_variable_1.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="data" value="#[output text/plain --- readUrl('classpath://publishSNSFlow1\mock_variable_2.dwl')]" mediaType="text/plain" encoding="UTF-8" />
+						<munit-tools:variable key="arn_exists" value="#[output application/json --- readUrl('classpath://publishSNSFlow1\mock_variable_3.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="arn" value="#[output application/java --- readUrl('classpath://publishSNSFlow1\mock_variable_4.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="symbol" value="#[output application/java --- readUrl('classpath://publishSNSFlow1\mock_variable_5.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="alertBy" value="#[output application/java --- readUrl('classpath://publishSNSFlow1\mock_variable_6.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="pricePercentage" value="#[output application/java --- readUrl('classpath://publishSNSFlow1\mock_variable_7.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="rapid" value="#[output application/json --- readUrl('classpath://publishSNSFlow1\mock_variable_8.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock Publish" doc:id="a1549efc-9490-4349-841f-c380af2ecd08" processor="sns:publish">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="8f0541a8-edbe-4bf0-9a64-52fbb419919d" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output text/plain --- readUrl('classpath://publishSNSFlow1\mock_payload1.dwl')]" mediaType="text/plain" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://publishSNSFlow1\mock_attributes.dwl')]" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://publishSNSFlow1\mock_variable_9.dwl')]" />
+						<munit-tools:variable key="mobileNumber" value="#[output application/java --- readUrl('classpath://publishSNSFlow1\mock_variable_10.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="data" value="#[output text/plain --- readUrl('classpath://publishSNSFlow1\mock_variable_11.dwl')]" mediaType="text/plain" encoding="UTF-8" />
+						<munit-tools:variable key="arn_exists" value="#[output application/json --- readUrl('classpath://publishSNSFlow1\mock_variable_12.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="arn" value="#[output application/java --- readUrl('classpath://publishSNSFlow1\mock_variable_13.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="symbol" value="#[output application/java --- readUrl('classpath://publishSNSFlow1\mock_variable_14.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="alertBy" value="#[output application/java --- readUrl('classpath://publishSNSFlow1\mock_variable_15.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="pricePercentage" value="#[output application/java --- readUrl('classpath://publishSNSFlow1\mock_variable_16.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="rapid" value="#[output application/json --- readUrl('classpath://publishSNSFlow1\mock_variable_17.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock getDataFromRapidAPIFlow" doc:id="5b0024d6-eafe-4de6-a2ee-0c014965b687" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="88703494-ddac-45f9-9c42-ce62e019c509" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://publishSNSFlow1\mock_payload2.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://publishSNSFlow1\mock_variable_18.dwl')]" />
+						<munit-tools:variable key="mobileNumber" value="#[output application/java --- readUrl('classpath://publishSNSFlow1\mock_variable_19.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="arn_exists" value="#[output application/json --- readUrl('classpath://publishSNSFlow1\mock_variable_20.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="arn" value="#[output application/java --- readUrl('classpath://publishSNSFlow1\mock_variable_21.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="symbol" value="#[output application/java --- readUrl('classpath://publishSNSFlow1\mock_variable_22.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="alertBy" value="#[output application/java --- readUrl('classpath://publishSNSFlow1\mock_variable_23.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="pricePercentage" value="#[output application/java --- readUrl('classpath://publishSNSFlow1\mock_variable_24.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="rapid" value="#[output application/json --- readUrl('classpath://publishSNSFlow1\mock_variable_25.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="e7d052a5-e325-4b91-89b1-d109d1d8e68b" >
+				<munit:payload value="#[output application/json --- readUrl('classpath://publishSNSFlow1\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://publishSNSFlow1\set-event_variable_.dwl')]" />
+					<munit:variable key="mobileNumber" value="#[output application/java --- readUrl('classpath://publishSNSFlow1\set-event_variable_1.dwl')]" encoding="UTF-8" mediaType="application/java" />
+					<munit:variable key="arn_exists" value="#[output application/json --- readUrl('classpath://publishSNSFlow1\set-event_variable_2.dwl')]" encoding="UTF-8" mediaType="application/json" />
+					<munit:variable key="arn" value="#[output application/java --- readUrl('classpath://publishSNSFlow1\set-event_variable_3.dwl')]" encoding="UTF-8" mediaType="application/java" />
+					<munit:variable key="symbol" value="#[output application/java --- readUrl('classpath://publishSNSFlow1\set-event_variable_4.dwl')]" encoding="UTF-8" mediaType="application/java" />
+					<munit:variable key="alertBy" value="#[output application/java --- readUrl('classpath://publishSNSFlow1\set-event_variable_5.dwl')]" encoding="UTF-8" mediaType="application/java" />
+					<munit:variable key="pricePercentage" value="#[output application/java --- readUrl('classpath://publishSNSFlow1\set-event_variable_6.dwl')]" encoding="UTF-8" mediaType="application/java" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to publishSNSFlow" doc:id="60510343-1cee-4422-8afd-5b8b420088cc" name="publishSNSFlow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="7defbebb-9146-4ebc-b1c5-ac913af90f75" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import publishSNSFlow1::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="createSNSTopicFlow1" doc:id="38e7f9fe-23ad-4349-bcf8-e7bb7298d9df" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock Create topic" doc:id="f1e88c93-a460-4c2c-bfe2-67bac484bec0" processor="sns:create-topic">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="d5de6067-bc7c-4452-b8be-3ec743567dfe" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output text/plain --- readUrl('classpath://createSNSTopicFlow1\mock_payload.dwl')]" mediaType="text/plain" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://createSNSTopicFlow1\mock_attributes.dwl')]" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://createSNSTopicFlow1\mock_variable_.dwl')]" />
+						<munit-tools:variable key="mobileNumber" value="#[output application/java --- readUrl('classpath://createSNSTopicFlow1\mock_variable_1.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="arn_exists" value="#[output application/java --- readUrl('classpath://createSNSTopicFlow1\mock_variable_2.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="arn" value="#[output application/java --- readUrl('classpath://createSNSTopicFlow1\mock_variable_3.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="symbol" value="#[output application/java --- readUrl('classpath://createSNSTopicFlow1\mock_variable_4.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="alertBy" value="#[output application/java --- readUrl('classpath://createSNSTopicFlow1\mock_variable_5.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="pricePercentage" value="#[output application/java --- readUrl('classpath://createSNSTopicFlow1\mock_variable_6.dwl')]" mediaType="application/java" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock arn" doc:id="babfe924-c976-49f5-abd4-860c881df162" processor="set-variable">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="f1dd83ee-2139-4579-8e98-677787502754" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://createSNSTopicFlow1\mock_variable_7.dwl')]" />
+						<munit-tools:variable key="mobileNumber" value="#[output application/java --- readUrl('classpath://createSNSTopicFlow1\mock_variable_8.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="arn_exists" value="#[output application/java --- readUrl('classpath://createSNSTopicFlow1\mock_variable_9.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="arn" value="#[output application/json --- readUrl('classpath://createSNSTopicFlow1\mock_variable_10.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="symbol" value="#[output application/java --- readUrl('classpath://createSNSTopicFlow1\mock_variable_11.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="alertBy" value="#[output application/java --- readUrl('classpath://createSNSTopicFlow1\mock_variable_12.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="pricePercentage" value="#[output application/java --- readUrl('classpath://createSNSTopicFlow1\mock_variable_13.dwl')]" mediaType="application/java" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock Subscribe" doc:id="701d78e7-2a31-4735-b1dc-0f82b87b2fcd" processor="sns:subscribe">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="d33d9547-1052-4279-be5c-93f54f44348e" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output text/plain --- readUrl('classpath://createSNSTopicFlow1\mock_payload1.dwl')]" mediaType="text/plain" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://createSNSTopicFlow1\mock_attributes1.dwl')]" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://createSNSTopicFlow1\mock_variable_14.dwl')]" />
+						<munit-tools:variable key="mobileNumber" value="#[output application/java --- readUrl('classpath://createSNSTopicFlow1\mock_variable_15.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="arn_exists" value="#[output application/java --- readUrl('classpath://createSNSTopicFlow1\mock_variable_16.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="arn" value="#[output application/json --- readUrl('classpath://createSNSTopicFlow1\mock_variable_17.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="symbol" value="#[output application/java --- readUrl('classpath://createSNSTopicFlow1\mock_variable_18.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="alertBy" value="#[output application/java --- readUrl('classpath://createSNSTopicFlow1\mock_variable_19.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="pricePercentage" value="#[output application/java --- readUrl('classpath://createSNSTopicFlow1\mock_variable_20.dwl')]" mediaType="application/java" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="180bea07-bc97-4a80-8e17-5457e0976a49" >
+				<munit:payload value="#[output application/json --- readUrl('classpath://createSNSTopicFlow1\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://createSNSTopicFlow1\set-event_variable_.dwl')]" />
+					<munit:variable key="mobileNumber" value="#[output application/java --- readUrl('classpath://createSNSTopicFlow1\set-event_variable_1.dwl')]" encoding="UTF-8" mediaType="application/java" />
+					<munit:variable key="arn_exists" value="#[output application/java --- readUrl('classpath://createSNSTopicFlow1\set-event_variable_2.dwl')]" encoding="UTF-8" mediaType="application/java" />
+					<munit:variable key="arn" value="#[output application/java --- readUrl('classpath://createSNSTopicFlow1\set-event_variable_3.dwl')]" encoding="UTF-8" mediaType="application/java" />
+					<munit:variable key="symbol" value="#[output application/java --- readUrl('classpath://createSNSTopicFlow1\set-event_variable_4.dwl')]" encoding="UTF-8" mediaType="application/java" />
+					<munit:variable key="alertBy" value="#[output application/java --- readUrl('classpath://createSNSTopicFlow1\set-event_variable_5.dwl')]" encoding="UTF-8" mediaType="application/java" />
+					<munit:variable key="pricePercentage" value="#[output application/java --- readUrl('classpath://createSNSTopicFlow1\set-event_variable_6.dwl')]" encoding="UTF-8" mediaType="application/java" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to createSNSTopicFlow" doc:id="82798442-0bde-4a42-bcdd-91d12d00bed1" name="createSNSTopicFlow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="bb7c324e-3c56-4e4b-be87-5dbf2bd81d05" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import createSNSTopicFlow1::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="SNS_Flow-test" doc:id="2186896d-93c0-4a05-bbd3-c6f49c4b5e2b" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock List topics" doc:id="1249fceb-f1c4-4a67-9be9-f6236e2e3157" processor="sns:list-topics">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="8e227263-6fbd-411a-b8f3-ae4ba430021a" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/java --- readUrl('classpath://SNSFlowtest\mock_payload.dwl')]" mediaType="application/java" encoding="UTF-8" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://SNSFlowtest\mock_variable_.dwl')]" />
+						<munit-tools:variable key="mobileNumber" value="#[output application/java --- readUrl('classpath://SNSFlowtest\mock_variable_1.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="arn_exists" value="#[output application/java --- readUrl('classpath://SNSFlowtest\mock_variable_2.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="arn" value="#[output application/java --- readUrl('classpath://SNSFlowtest\mock_variable_3.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="symbol" value="#[output application/java --- readUrl('classpath://SNSFlowtest\mock_variable_4.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="alertBy" value="#[output application/java --- readUrl('classpath://SNSFlowtest\mock_variable_5.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="pricePercentage" value="#[output application/java --- readUrl('classpath://SNSFlowtest\mock_variable_6.dwl')]" mediaType="application/java" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock arn_exists" doc:id="ec28b79a-9ed5-459c-b029-36e79bb064e0" processor="set-variable">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="287409da-09cf-4f6c-b2be-2ebe45d78d1a" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://SNSFlowtest\mock_variable_7.dwl')]" />
+						<munit-tools:variable key="mobileNumber" value="#[output application/java --- readUrl('classpath://SNSFlowtest\mock_variable_8.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="arn_exists" value="#[output application/json --- readUrl('classpath://SNSFlowtest\mock_variable_9.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="arn" value="#[output application/java --- readUrl('classpath://SNSFlowtest\mock_variable_10.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="symbol" value="#[output application/java --- readUrl('classpath://SNSFlowtest\mock_variable_11.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="alertBy" value="#[output application/java --- readUrl('classpath://SNSFlowtest\mock_variable_12.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="pricePercentage" value="#[output application/java --- readUrl('classpath://SNSFlowtest\mock_variable_13.dwl')]" mediaType="application/java" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock publishSNSFlow" doc:id="4f0edd56-cc2c-4e2b-9fe8-8972ed5ef3d9" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="5f5441ce-3e4b-4edb-bfec-98a00869fa86" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://SNSFlowtest\mock_payload1.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://SNSFlowtest\mock_variable_14.dwl')]" />
+						<munit-tools:variable key="publish" value="#[output application/json --- readUrl('classpath://SNSFlowtest\mock_variable_15.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="mobileNumber" value="#[output application/java --- readUrl('classpath://SNSFlowtest\mock_variable_16.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="arn_exists" value="#[output application/json --- readUrl('classpath://SNSFlowtest\mock_variable_17.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="arn" value="#[output application/java --- readUrl('classpath://SNSFlowtest\mock_variable_18.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="symbol" value="#[output application/java --- readUrl('classpath://SNSFlowtest\mock_variable_19.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="alertBy" value="#[output application/java --- readUrl('classpath://SNSFlowtest\mock_variable_20.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="pricePercentage" value="#[output application/java --- readUrl('classpath://SNSFlowtest\mock_variable_21.dwl')]" mediaType="application/java" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="993ad50c-ec08-4d33-9eac-8bebd97ad0e7" >
+				<munit:payload value="#[readUrl('classpath://SNSFlowtest\set-event_payload.dwl')]" encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://SNSFlowtest\set-event_attributes.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://SNSFlowtest\set-event_variable_.dwl')]" />
+					<munit:variable key="mobileNumber" value="#[output application/java --- readUrl('classpath://SNSFlowtest\set-event_variable_1.dwl')]" encoding="UTF-8" mediaType="application/java" />
+					<munit:variable key="arn_exists" value="#[output application/java --- readUrl('classpath://SNSFlowtest\set-event_variable_2.dwl')]" encoding="UTF-8" mediaType="application/java" />
+					<munit:variable key="arn" value="#[output application/java --- readUrl('classpath://SNSFlowtest\set-event_variable_3.dwl')]" encoding="UTF-8" mediaType="application/java" />
+					<munit:variable key="symbol" value="#[output application/java --- readUrl('classpath://SNSFlowtest\set-event_variable_4.dwl')]" encoding="UTF-8" mediaType="application/java" />
+					<munit:variable key="alertBy" value="#[output application/java --- readUrl('classpath://SNSFlowtest\set-event_variable_5.dwl')]" encoding="UTF-8" mediaType="application/java" />
+					<munit:variable key="pricePercentage" value="#[output application/java --- readUrl('classpath://SNSFlowtest\set-event_variable_6.dwl')]" encoding="UTF-8" mediaType="application/java" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to SNS_Flow" doc:id="4442c387-0321-4b6c-9ab2-dd47fe193488" name="SNS_Flow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="df9b6895-dbbc-43e3-b0ab-68bcac9c2dc2" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import SNSFlowtest::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="SNS_Flow-for-NEW-Topic" doc:id="f0ed53f3-827a-4974-a864-0d018dd8ed8b" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock List topics" doc:id="7e88a354-1e45-4747-84d8-d665bca95f97" processor="sns:list-topics">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="8e227263-6fbd-411a-b8f3-ae4ba430021a" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/java --- readUrl('classpath://SNSFlowforNEWTopic\mock_payload.dwl')]" mediaType="application/java" encoding="UTF-8" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://SNSFlowforNEWTopic\mock_variable_.dwl')]" />
+						<munit-tools:variable key="mobileNumber" value="#[output application/java --- readUrl('classpath://SNSFlowforNEWTopic\mock_variable_1.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="arn_exists" value="#[output application/java --- readUrl('classpath://SNSFlowforNEWTopic\mock_variable_2.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="arn" value="#[output application/java --- readUrl('classpath://SNSFlowforNEWTopic\mock_variable_3.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="symbol" value="#[output application/java --- readUrl('classpath://SNSFlowforNEWTopic\mock_variable_4.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="alertBy" value="#[output application/java --- readUrl('classpath://SNSFlowforNEWTopic\mock_variable_5.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="pricePercentage" value="#[output application/java --- readUrl('classpath://SNSFlowforNEWTopic\mock_variable_6.dwl')]" mediaType="application/java" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock createSNSTopicFlow" doc:id="8c6625b8-bafc-4f56-baeb-86a16bdf3310" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="df50439b-521c-4e6e-9fb0-914707ca8520" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output text/plain --- readUrl('classpath://SNSFlowforNEWTopic\mock_payload1.dwl')]" mediaType="text/plain" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://SNSFlowforNEWTopic\mock_attributes.dwl')]" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://SNSFlowforNEWTopic\mock_variable_7.dwl')]" />
+						<munit-tools:variable key="mobileNumber" value="#[output application/java --- readUrl('classpath://SNSFlowforNEWTopic\mock_variable_8.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="arn_exists" value="#[output application/java --- readUrl('classpath://SNSFlowforNEWTopic\mock_variable_9.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="arn" value="#[output application/json --- readUrl('classpath://SNSFlowforNEWTopic\mock_variable_10.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="symbol" value="#[output application/java --- readUrl('classpath://SNSFlowforNEWTopic\mock_variable_11.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="alertBy" value="#[output application/java --- readUrl('classpath://SNSFlowforNEWTopic\mock_variable_12.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="pricePercentage" value="#[output application/java --- readUrl('classpath://SNSFlowforNEWTopic\mock_variable_13.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="rapid" value="#[output application/json --- readUrl('classpath://SNSFlowforNEWTopic\mock_variable_14.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="c95e2c4a-4b9f-4cdc-8381-8d2e31cb1ac2" >
+				<munit:payload value="#[readUrl('classpath://SNSFlowforNEWTopic\set-event_payload.dwl')]" encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://SNSFlowforNEWTopic\set-event_attributes.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://SNSFlowforNEWTopic\set-event_variable_.dwl')]" />
+					<munit:variable key="mobileNumber" value="#[output application/java --- readUrl('classpath://SNSFlowforNEWTopic\set-event_variable_1.dwl')]" encoding="UTF-8" mediaType="application/java" />
+					<munit:variable key="arn_exists" value="#[output application/java --- readUrl('classpath://SNSFlowforNEWTopic\set-event_variable_2.dwl')]" encoding="UTF-8" mediaType="application/java" />
+					<munit:variable key="arn" value="#[output application/java --- readUrl('classpath://SNSFlowforNEWTopic\set-event_variable_3.dwl')]" encoding="UTF-8" mediaType="application/java" />
+					<munit:variable key="symbol" value="#[output application/java --- readUrl('classpath://SNSFlowforNEWTopic\set-event_variable_4.dwl')]" encoding="UTF-8" mediaType="application/java" />
+					<munit:variable key="alertBy" value="#[output application/java --- readUrl('classpath://SNSFlowforNEWTopic\set-event_variable_5.dwl')]" encoding="UTF-8" mediaType="application/java" />
+					<munit:variable key="pricePercentage" value="#[output application/java --- readUrl('classpath://SNSFlowforNEWTopic\set-event_variable_6.dwl')]" encoding="UTF-8" mediaType="application/java" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to SNS_Flow" doc:id="1f4966e6-0af3-487a-88fa-f7fb4f4c424f" name="SNS_Flow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="ee9a2151-bdf7-40ee-8107-9e30dba62260" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import SNSFlowforNEWTopic::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="InsertRecords" doc:id="680f9afb-0927-468d-8362-59eb612bd1f8" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock alertBy" doc:id="5e1aa2e3-a073-49b0-b840-ee182d463643" processor="set-variable">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="16b504d8-62c4-484a-8970-23cd40b72cbf" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://InsertRecords\mock_variable_.dwl')]" />
+						<munit-tools:variable key="symbol" value="#[output application/java --- readUrl('classpath://InsertRecords\mock_variable_1.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="alertBy" value="#[output application/java --- readUrl('classpath://InsertRecords\mock_variable_2.dwl')]" mediaType="application/java" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock symbol" doc:id="98572816-fb19-4a4b-94a5-5c2a97719c7a" processor="set-variable">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="7807e251-a39f-4d98-b89b-31e10d44da7f" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://InsertRecords\mock_variable_3.dwl')]" />
+						<munit-tools:variable key="symbol" value="#[output application/java --- readUrl('classpath://InsertRecords\mock_variable_4.dwl')]" mediaType="application/java" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock arn_exists" doc:id="fe9dc495-f04b-4e33-b4e8-edd5b36c7d63" processor="set-variable">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="2c166508-b173-4798-8012-cfe91e5801f7" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://InsertRecords\mock_variable_5.dwl')]" />
+						<munit-tools:variable key="mobileNumber" value="#[output application/java --- readUrl('classpath://InsertRecords\mock_variable_6.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="arn_exists" value="#[output application/java --- readUrl('classpath://InsertRecords\mock_variable_7.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="arn" value="#[output application/java --- readUrl('classpath://InsertRecords\mock_variable_8.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="symbol" value="#[output application/java --- readUrl('classpath://InsertRecords\mock_variable_9.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="alertBy" value="#[output application/java --- readUrl('classpath://InsertRecords\mock_variable_10.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="pricePercentage" value="#[output application/java --- readUrl('classpath://InsertRecords\mock_variable_11.dwl')]" mediaType="application/java" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock arn" doc:id="4973d86c-7ab8-4f9f-81a5-286008213b18" processor="set-variable">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="e4c5b0b7-17eb-44d1-8898-4a02aa147656" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://InsertRecords\mock_variable_12.dwl')]" />
+						<munit-tools:variable key="mobileNumber" value="#[output application/java --- readUrl('classpath://InsertRecords\mock_variable_13.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="arn" value="#[output application/java --- readUrl('classpath://InsertRecords\mock_variable_14.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="symbol" value="#[output application/java --- readUrl('classpath://InsertRecords\mock_variable_15.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="alertBy" value="#[output application/java --- readUrl('classpath://InsertRecords\mock_variable_16.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="pricePercentage" value="#[output application/java --- readUrl('classpath://InsertRecords\mock_variable_17.dwl')]" mediaType="application/java" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock pricePercentage" doc:id="9ae0e59a-0a67-495a-ab7b-7b76606075ef" processor="set-variable">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="720e15d3-94f7-4904-9b73-59c485be78fd" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://InsertRecords\mock_variable_18.dwl')]" />
+						<munit-tools:variable key="mobileNumber" value="#[output application/java --- readUrl('classpath://InsertRecords\mock_variable_19.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="symbol" value="#[output application/java --- readUrl('classpath://InsertRecords\mock_variable_20.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="alertBy" value="#[output application/java --- readUrl('classpath://InsertRecords\mock_variable_21.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="pricePercentage" value="#[output application/java --- readUrl('classpath://InsertRecords\mock_variable_22.dwl')]" mediaType="application/java" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock mobileNumber" doc:id="bd08f1d8-f634-4827-a145-26bcabcef202" processor="set-variable">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="6958a148-f44f-42c9-9718-59933582b3cc" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://InsertRecords\mock_variable_23.dwl')]" />
+						<munit-tools:variable key="mobileNumber" value="#[output application/java --- readUrl('classpath://InsertRecords\mock_variable_24.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="symbol" value="#[output application/java --- readUrl('classpath://InsertRecords\mock_variable_25.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="alertBy" value="#[output application/java --- readUrl('classpath://InsertRecords\mock_variable_26.dwl')]" mediaType="application/java" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock Set Payload" doc:id="60e28fba-428a-4252-8658-e495a22bef48" processor="set-payload">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="05b1a997-9b30-4a13-acaf-d8aa37be5bd8" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://InsertRecords\mock_payload.dwl')]" mediaType="application/json" encoding="UTF-8" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock Insert" doc:id="eda7aa1e-69eb-47a7-89c6-2cbd6676f72a" processor="db:insert">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="fe8105d6-ad95-4466-9d0b-9b4bb442cd6c" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/java --- readUrl('classpath://InsertRecords\mock_payload1.dwl')]" mediaType="application/java" encoding="UTF-8" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://InsertRecords\mock_variable_27.dwl')]" />
+						<munit-tools:variable key="publish" value="#[output application/json --- readUrl('classpath://InsertRecords\mock_variable_28.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="mobileNumber" value="#[output application/java --- readUrl('classpath://InsertRecords\mock_variable_29.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="arn_exists" value="#[output application/json --- readUrl('classpath://InsertRecords\mock_variable_30.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="arn" value="#[output application/java --- readUrl('classpath://InsertRecords\mock_variable_31.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="symbol" value="#[output application/java --- readUrl('classpath://InsertRecords\mock_variable_32.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="alertBy" value="#[output application/java --- readUrl('classpath://InsertRecords\mock_variable_33.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="pricePercentage" value="#[output application/java --- readUrl('classpath://InsertRecords\mock_variable_34.dwl')]" mediaType="application/java" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock SNS_Flow" doc:id="a200a653-0720-4ec6-a4f7-f55121822f26" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="098239f0-9fee-44bf-9f9e-d5897e953dfd" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://InsertRecords\mock_payload2.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://InsertRecords\mock_variable_35.dwl')]" />
+						<munit-tools:variable key="publish" value="#[output application/json --- readUrl('classpath://InsertRecords\mock_variable_36.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="mobileNumber" value="#[output application/java --- readUrl('classpath://InsertRecords\mock_variable_37.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="arn_exists" value="#[output application/json --- readUrl('classpath://InsertRecords\mock_variable_38.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="arn" value="#[output application/java --- readUrl('classpath://InsertRecords\mock_variable_39.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="symbol" value="#[output application/java --- readUrl('classpath://InsertRecords\mock_variable_40.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="alertBy" value="#[output application/java --- readUrl('classpath://InsertRecords\mock_variable_41.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="pricePercentage" value="#[output application/java --- readUrl('classpath://InsertRecords\mock_variable_42.dwl')]" mediaType="application/java" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="3b60a676-aa9b-4109-a543-cc834523db17" >
+				<munit:payload value="#[readUrl('classpath://InsertRecords\set-event_payload.dwl')]" encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://InsertRecords\set-event_attributes.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://InsertRecords\set-event_variable_.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to mainFlow" doc:id="0a18a8f7-12d0-4a86-8804-5f90f0b306a0" name="mainFlow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="c44c14be-61a8-430a-8846-701978f5dce7" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import InsertRecords::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="GetStocks" doc:id="0bd7051b-eed2-4f8a-a5c8-1e55b5814e49" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock mainFlow" doc:id="739a7142-cbe0-4631-823b-ac0db7336c2f" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="7f0515e9-67de-4f7e-8cbd-2bbd5caba62c" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://GetStocks\mock_payload.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://GetStocks\mock_variable_.dwl')]" />
+						<munit-tools:variable key="publish" value="#[output application/json --- readUrl('classpath://GetStocks\mock_variable_1.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="mobileNumber" value="#[output application/java --- readUrl('classpath://GetStocks\mock_variable_2.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="arn_exists" value="#[output application/json --- readUrl('classpath://GetStocks\mock_variable_3.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="arn" value="#[output application/java --- readUrl('classpath://GetStocks\mock_variable_4.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="symbol" value="#[output application/java --- readUrl('classpath://GetStocks\mock_variable_5.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="alertBy" value="#[output application/java --- readUrl('classpath://GetStocks\mock_variable_6.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="pricePercentage" value="#[output application/java --- readUrl('classpath://GetStocks\mock_variable_7.dwl')]" mediaType="application/java" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="a799e0bf-bb4b-47a7-b6d6-84611300a9fa" >
+				<munit:payload value="#[readUrl('classpath://GetStocks\set-event_payload.dwl')]" encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://GetStocks\set-event_attributes.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://GetStocks\set-event_variable_.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to get:\getStockDetails\(stock):instant-stock-market-alerts-config" doc:id="1dac589c-3468-41c3-bed5-e0f3e0dec231" name="get:\getStockDetails\(stock):instant-stock-market-alerts-config"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="4f12b7b9-a9c3-41d5-bce5-4d66ba035056" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import GetStocks::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="APIKIT" doc:id="5b1070a5-4658-4505-8e62-7da4a53c26e6" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock APIkit Router" doc:id="111c0f49-c906-43bb-b1ff-bf01f15178a7" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="644794cb-cc60-4d17-b378-da3fb21212f7" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://APIKIT\mock_payload.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://APIKIT\mock_variable_.dwl')]" />
+						<munit-tools:variable key="httpStatus" value="#[readUrl('classpath://APIKIT\mock_variable_1.dwl')]" />
+						<munit-tools:variable key="publish" value="#[output application/json --- readUrl('classpath://APIKIT\mock_variable_2.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="mobileNumber" value="#[output application/java --- readUrl('classpath://APIKIT\mock_variable_3.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="arn_exists" value="#[output application/json --- readUrl('classpath://APIKIT\mock_variable_4.dwl')]" mediaType="application/json" encoding="UTF-8" />
+						<munit-tools:variable key="arn" value="#[output application/java --- readUrl('classpath://APIKIT\mock_variable_5.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="symbol" value="#[output application/java --- readUrl('classpath://APIKIT\mock_variable_6.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="alertBy" value="#[output application/java --- readUrl('classpath://APIKIT\mock_variable_7.dwl')]" mediaType="application/java" encoding="UTF-8" />
+						<munit-tools:variable key="pricePercentage" value="#[output application/java --- readUrl('classpath://APIKIT\mock_variable_8.dwl')]" mediaType="application/java" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="8743cc98-07ea-4d5d-a351-00b39f44a7e4" >
+				<munit:payload value="#[readUrl('classpath://APIKIT\set-event_payload.dwl')]" encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://APIKIT\set-event_attributes.dwl')]" />
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to instant-stock-market-alerts-main" doc:id="7864e82d-2a17-4448-83a6-9fff9bf0f3dd" name="instant-stock-market-alerts-main"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="d10ef604-dc50-4764-9a3e-a7721fdb5116" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import APIKIT::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+
+
+</mule>

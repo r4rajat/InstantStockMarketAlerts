@@ -186,7 +186,7 @@ output application/json
 			</on-error-propagate>
 		</error-handler>
 	</flow>
-	<flow name="alertFlow" doc:id="9b9a05d4-7763-488c-b302-51d2f01612d5" >
+	<flow name="alertFlow" doc:id="9b9a05d4-7763-488c-b302-51d2f01612d5" initialState="started">
 		<sqs:receivemessages doc:name="Receive messages" doc:id="faf1f9f2-a5eb-4bfd-b05d-622416e07b9b" config-ref="Amazon_SQS_Configuration" queueUrl="https://sqs.us-east-2.amazonaws.com/417908622723/Stocks"/>
 		<ee:transform doc:name="Transform Message" doc:id="fe6174da-3700-4ad3-9660-85c9007abce7" >
 			<ee:message >
