@@ -29,6 +29,12 @@ http://www.mulesoft.org/schema/mule/twilio http://www.mulesoft.org/schema/mule/t
 		</db:insert>
 		<set-payload value='#[""]' doc:name="Set Payload" doc:id="05b1a997-9b30-4a13-acaf-d8aa37be5bd8" />
 		<logger level="INFO" doc:name="Logger" doc:id="6a44b182-af39-4c86-9b99-5800baa8499c" message='#[vars."output"]'/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="8034eaea-36d3-45fc-a336-a5408ad15482" >
+				<set-payload value="#[error.errorMessage]" doc:name="errorMessage" doc:id="af3b6863-748b-4613-ac35-e8b93691bed9" />
+				<logger level="INFO" doc:name="Logger" doc:id="c17c8c43-14b9-4742-87e3-5b7d657a43cd" />
+			</on-error-propagate>
+		</error-handler>
 	</flow>
 	<flow name="SNS_Flow" doc:id="6fdbe4a2-c411-488c-b5fb-d35014f713b6" >
 		<sns:list-topics doc:name="List topics" doc:id="8e227263-6fbd-411a-b8f3-ae4ba430021a" config-ref="Amazon_SNS_configuration"/>
@@ -79,6 +85,12 @@ payload[0]]]></ee:set-payload>
 				<flow-ref doc:name="createSNSTopicFlow" doc:id="df50439b-521c-4e6e-9fb0-914707ca8520" name="createSNSTopicFlow"/>
 			</otherwise>
 		</choice>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="cabaf6d0-9ef8-402b-8253-4fee7b041c25" type="ANY">
+				<set-payload value="#[error.errorMessage]" doc:name="errorMessage" doc:id="d85581d9-09d2-4d3b-a539-bae753c6e858" />
+				<logger level="INFO" doc:name="Logger" doc:id="d4aacd22-8f47-482b-bab7-ebdfcc59d601" />
+			</on-error-propagate>
+		</error-handler>
 	</flow>
 	<flow name="createSNSTopicFlow" doc:id="1657f9da-0a15-4e3d-8511-31bf4b09fd89" >
 		<sns:create-topic doc:name="Create topic" doc:id="d5de6067-bc7c-4452-b8be-3ec743567dfe" config-ref="Amazon_SNS_configuration" topicName="#[vars.symbol]"/>
@@ -93,6 +105,12 @@ payload]]></ee:set-payload>
 		<set-variable value="#[payload]" doc:name="arn" doc:id="f1dd83ee-2139-4579-8e98-677787502754" variableName="arn"/>
 		<sns:subscribe doc:name="Subscribe" doc:id="d33d9547-1052-4279-be5c-93f54f44348e" config-ref="Amazon_SNS_configuration" topicArn="#[payload]" protocol="SQS" endpoint="${aws.queue_arn}"/>
 		<flow-ref doc:name="Flow Reference" doc:id="a4fecc0f-2611-494a-a2ac-8a383ac7cfa4" name="publishSNSFlow" target="rapid"/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="54d31cd9-a121-4616-9c52-a173ac5bbecf" >
+				<set-payload value="#[error.errorMessage]" doc:name="errorMessage" doc:id="239f7678-9aae-4afa-a88c-6ca27a3f5eee" />
+				<logger level="INFO" doc:name="Logger" doc:id="61930d9c-089f-4d12-a1f2-3d0259ec639d" />
+			</on-error-propagate>
+		</error-handler>
 	</flow>
 	<flow name="publishSNSFlow" doc:id="37b51052-7141-4578-9d2a-736bb5365069" >
 		<flow-ref doc:name="getDataFromRapidAPIFlow" doc:id="88703494-ddac-45f9-9c42-ce62e019c509" name="getDataFromRapidAPIFlow" target="rapid"/>
@@ -126,6 +144,12 @@ if(vars.arn_exists != "") vars.arn_exists else if (vars.arn != "") vars.arn else
 		</sns:publish>
 		<set-payload value="#[vars.dataFromRapidAPI]" doc:name="Set Payload" doc:id="36a24a75-1ad7-46b5-9016-27693d01f400" />
 		<logger level="INFO" doc:name="Logger" doc:id="e61beb22-3552-46f0-ba81-16c719369026" />
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="e41f96ce-7df4-4583-971d-42145d7c5c36" type="ANY">
+				<set-payload value="#[error.errorMessage]" doc:name="errorMessage" doc:id="2f8be86c-2ad5-4b47-b614-810ab01f9502" />
+				<logger level="INFO" doc:name="Logger" doc:id="87aeb0c4-42e7-472a-ae4c-32d62aeb1db4" />
+			</on-error-propagate>
+		</error-handler>
 	</flow>
 	<flow name="getDataFromRapidAPIFlow" doc:id="980a4fc5-b229-4a21-b9f3-135bf7bf8588" >
 		<http:request method="GET" doc:name="Request" doc:id="b79aa3e4-6767-49ba-8e28-2512281fe781" config-ref="HTTP_Request_configuration" path="/query">
@@ -156,6 +180,12 @@ output application/json
 			</ee:message>
 		</ee:transform>
 		<logger level="INFO" doc:name="Logger" doc:id="ba16f66d-1c15-4910-85f5-1be167b1bc6e" />
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="1540b2b3-639b-4ab7-bf00-9e4957fe4f03" type="ANY">
+				<set-payload value="#[error.errorMessage]" doc:name="errorMessage" doc:id="2fca1c16-5b7f-4b6f-a0e1-953a23e3aa37" />
+				<logger level="INFO" doc:name="Logger" doc:id="cfb70da9-2026-49ce-8aec-e36fe0ef6e08" />
+			</on-error-propagate>
+		</error-handler>
 	</flow>
 	<flow name="alertFlow" doc:id="9b9a05d4-7763-488c-b302-51d2f01612d5" >
 		<sqs:receivemessages doc:name="Receive messages" doc:id="faf1f9f2-a5eb-4bfd-b05d-622416e07b9b" config-ref="Amazon_SQS_Configuration" queueUrl="https://sqs.us-east-2.amazonaws.com/417908622723/Stocks"/>
@@ -204,6 +234,12 @@ output application/x-www-form-urlencoded
 				<logger level="INFO" doc:name="Logger" doc:id="9eb06345-9793-4f18-be5d-a990018a8720" />
 			</otherwise>
 		</choice>
+		<error-handler>
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="ed7e988b-f118-4f96-9515-4e7502570c6d" >
+				<set-payload value="#[error.errorMessage]" doc:name="errorMessage" doc:id="833d7da3-3c0c-49a9-bd34-a8f6650ed4ae" />
+				<logger level="INFO" doc:name="Logger" doc:id="813a8cfb-c024-415e-9f61-c3d8a02717da" />
+			</on-error-continue>
+		</error-handler>
 	</flow>
 	<flow name="schedularFlow" doc:id="4c609709-48f5-4a8b-973d-1f7ed1caee13" initialState="started">
 		<scheduler doc:name="Scheduler" doc:id="aa52b897-fd76-417b-89a4-e020a0460db5">
